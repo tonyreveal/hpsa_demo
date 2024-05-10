@@ -1,0 +1,48 @@
+---
+- name: Construct inventoryies from CMDB queries
+  hosts: localhost
+  gather_facts: true
+  become: false
+  pre_tasks:
+    - name: Include postgresql vars to query database
+      ansible.builtin.include_vars:
+        dir: vars/
+
+    - name: Get AAP token
+      ansible.controller.token:
+        controller_host: "{{ aaphost }}"
+        controller_password: "{{ aappass }}"
+        controller_username: "{{ aapuser }}"
+        scope: 'write'
+        validate_certs: true
+      register: aaptoken
+
+  tasks:
+    - name: Query database for hosts in {{ site_abbreviation }}
+      community.postgresql.postgresql_query:
+        db: "{{ dbname }}"
+        login_host: "{{ dbhost }}"
+        login_user: "{{ dbuser }}"
+        login_password: "{{ dbpassword }}"
+        port: "{{ dbport }}"
+        query: SELECT * FROM cmdb.hosts WHERE site LIKE '{{ site_abbreviation }}'
+      register: sql_query_results
+    
+    - name: Create fact with just hostnames
+      ansible.builtin.set_fact:
+        site_hosts: "{{ site_hosts | default([]) + [hosts] }}"
+      loop: "{{ sql_query_results['query_result'] | map(attribute='host') | list}}"
+      loop_control:
+        loop_var: hosts
+
+    - name: Create Hostgroup in Inventory from datbase query results
+      ansible.controller.group:
+        controller_host: "{{ aaphost }}"
+        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+        name: "hpsa_{{ site_abbreviation }}_hosts"
+        description: "{{ site_abbreviation }}" Hosts for HPSA Execution'
+        inventory: 'GM Inventory All Hosts'
+        hosts: "{{ site_hosts }}"
+        preserve_existing_hosts: false
+        preserve_existing_children: false
+...
