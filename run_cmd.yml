@@ -9,5 +9,5 @@
     
     - name: Display command results
       ansible.builtin.debug:
-        var: command_results
+        var: command_results['stdout_lines']
 ...
