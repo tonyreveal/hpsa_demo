@@ -1,0 +1,41 @@
+---
+    - name: Create Constructed Inventories for HPSA
+      ansible.controller.inventory:
+        controller_host: "{{ aaphost }}"
+        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+        description: "{{ site }} Hosts for HPSA Execution"
+        input_inventories:
+          - 'GM Inventory All Hosts'
+        instance_groups:
+          - "{{ site }}_IG"
+        kind: constructed
+        name: "HPSA {{ site }} Constructed Inventory"
+        organization: 'Texas Roadracing'
+        prevent_instance_group_fallback: true
+      loop: "{{ gm_sites }}"
+      loop_control:
+        loop_var: site
+
+    - name: Update Constructed Inventory from Source
+      ansible.controller.inventory_source:
+        controller_host: "{{ aaphost }}"
+        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+        inventory: "HPSA {{ site }} Constructed Inventory"
+        limit: "hpsa_{{ site }}_hosts"
+        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
+        organization: 'Texas Roadracing'
+      loop: "{{ gm_sites }}"
+      loop_control:
+        loop_var: site
+
+    - name: Update Constructed Inventory from Source
+      ansible.controller.inventory_source_update:
+        controller_host: "{{ aaphost }}"
+        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+        inventory: "HPSA {{ site }} Constructed Inventory"
+        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
+        organization: 'Texas Roadracing'
+      loop: "{{ gm_sites }}"
+      loop_control:
+        loop_var: site
+...

@@ -1,0 +1,141 @@
+---
+- name: Construct inventoryies from CMDB queries
+  hosts: localhost
+  gather_facts: false
+  become: false
+  pre_tasks:
+    - name: Include postgresql vars to query database
+      ansible.builtin.include_vars:
+        dir: vars/
+        extensions:
+          - 'yml'
+          - 'yaml'
+          - 'json'
+
+    - name: Get AAP token
+      ansible.controller.token:
+        controller_host: "{{ aaphost }}"
+        controller_password: "{{ aappass }}"
+        controller_username: "{{ aapuser }}"
+        scope: 'write'
+        validate_certs: true
+      register: aaptoken
+
+  tasks:
+    - name: Include role to generate inventories
+      ansible.builtin.include_role:
+        name: generalmotors.inventories.construct_inventories
+
+    - name: Create job templates
+      block:
+        - name: Create Job Templates to run against Hostgroups
+          ansible.controller.job_template:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            allow_simultaneous: true
+            ask_variables_on_launch: true
+            credentials: 'RHEL User'
+            instance_groups:
+              - "{{ site }}_IG"
+            inventory: 'GM Inventory All Hosts'
+            limit: "hpsa_{{ site }}_hosts"
+            job_type: 'run'
+            name: 'HPSA Job Template for {{ site}} using Hostgroups'
+            organization: 'Texas Roadracing'
+            project: 'HPSA Demo'
+            playbook: 'run_cmd.yml'
+          loop: "{{ gm_sites }}"
+          loop_control:
+            loop_var: site
+
+        - name: Create Job Templates to run against Constructed Inventories
+          ansible.controller.job_template:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            allow_simultaneous: true
+            ask_variables_on_launch: true
+            credentials: 'RHEL User'
+            inventory: "HPSA {{ site }} Constructed Inventory"
+            job_type: 'run'
+            name: "HPSA Job Template for {{ site}} using Constructed Inventory"
+            organization: 'Texas Roadracing'
+            project: 'HPSA Demo'
+            playbook: 'run_cmd.yml'
+          loop: "{{ gm_sites }}"
+          loop_control:
+            loop_var: site
+
+    - name: Create workflow templates
+      block:
+        - name: Create execution Workflow for Hostgroups
+          ansible.controller.workflow_job_template:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            allow_simultaneous: true
+            ask_variables_on_launch: true
+            name: 'HPSA Workflow for Hostgroups'
+            organization: 'Texas Roadracing'
+            workflow_nodes:
+              - extra_data:
+                  run_cmd: 'ls -al /home'
+                identifier: "{{ site }}_001"
+                limit: "hpsa_{{ site }}_hosts"
+                related:
+                  always_nodes: []
+                  failure_nodes: []
+                  success_nodes: []
+                unified_job_template:
+                  name: 'HPSA Job Template for {{ site}} using Hostgroups'
+                  organization:
+                    name: 'Texas Roadracing'
+                  type: 'job_template'
+          loop: "{{ gm_sites }}"
+          loop_control:
+            loop_var: site
+
+        - name: Create execution Workflow for Constructed Inventories
+          ansible.controller.workflow_job_template:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            allow_simultaneous: true
+            ask_variables_on_launch: true
+            name: 'HPSA Workflow for Constructed Inventories'
+            organization: 'Texas Roadracing'
+            workflow_nodes:
+              - extra_data:
+                  run_cmd: 'df -h'
+                identifier: "{{ site }}_001"
+                inventory: "HPSA {{ site }} Constructed Inventory"
+                related:
+                  always_nodes: []
+                  failure_nodes: []
+                  success_nodes: []
+                unified_job_template:
+                  name: "HPSA Job Template for {{ site}} using Constructed Inventory"
+                  organization:
+                    name: 'Texas Roadracing'
+                  type: 'job_template'
+          loop: "{{ gm_sites }}"
+          loop_control:
+            loop_var: site
+
+    - name: Launch workflows
+      block:
+        - name: Launch job in AAP against Constrcuted Inventories with Hostgroups
+          ansible.controller.workflow_launch:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            extra_vars:
+              run_cmd: 'ls -al /home'
+            wait: false
+            workflow_template: 'HPSA Workflow for Hostgroups'
+
+        - name: Launch job in AAP against Constructed Inventories using remote instance groups
+          ansible.controller.workflow_launch:
+            controller_host: "{{ aaphost }}"
+            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+            extra_vars:
+              run_cmd: 'df -h'
+            wait: false
+            workflow_template: 'HPSA Workflow for Constructed Inventories'
+...

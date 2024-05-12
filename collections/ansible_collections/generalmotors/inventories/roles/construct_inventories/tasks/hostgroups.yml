@@ -1,0 +1,15 @@
+---
+- name: Create Hostgroups in Inventory from datbase query results
+  ansible.controller.group:
+    controller_host: "{{ aaphost }}"
+    controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+    name: "hpsa_{{ site }}_hosts"
+    description: "{{ site }} Hosts for HPSA Execution"
+    inventory: 'GM Inventory All Hosts'
+    hosts: "{% if 'LMR' in site %}{{ lmr_hosts }}{% elif 'GMD' in site %}{{ gmd_hosts }}{% elif 'SGM' in site %}{{ sgm_hosts }}{% elif 'WAR' in site %}{{ war_hosts }}{% elif 'MIL' in site %}{{ mil_hosts }}{% elif 'PDG' in site %}{{ pdg_hosts }}{% endif %}"
+    preserve_existing_hosts: false
+    preserve_existing_children: false
+  loop: "{{ gm_sites }}"
+  loop_control:
+    loop_var: site
+...
