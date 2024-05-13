@@ -9,7 +9,7 @@
         instance_groups:
           - "{{ site }}_IG"
         kind: constructed
-        name: "HPSA {{ site }} Constructed Inventory"
+        name: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
         prevent_instance_group_fallback: true
       loop: "{{ locations }}"
@@ -22,7 +22,7 @@
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
         inventory: "HPSA {{ site }} Constructed Inventory"
         limit: "hpsa_{{ site }}_hosts"
-        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
+        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
       loop: "{{ locations }}"
       loop_control:
@@ -33,7 +33,7 @@
         controller_host: "{{ aaphost }}"
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
         inventory: "HPSA {{ site }} Constructed Inventory"
-        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
+        name: "Auto-created source for: HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
       loop: "{{ locations }}"
       loop_control:

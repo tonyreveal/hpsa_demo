@@ -3,7 +3,7 @@
   ansible.controller.group:
     controller_host: "{{ aaphost }}"
     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    name: "hpsa_{{ site }}_hosts"
+    name: "hpsa_{{ site }}_hosts {{ unique_job_number }}"
     description: "{{ site }} Hosts for HPSA Execution"
     inventory: 'Texas Roadracing Inventory All Hosts'
     hosts: "{% if 'LMR' in site %}{{ lmr_hosts }}{% elif 'GMD' in site %}{{ gmd_hosts }}{% elif 'SGM' in site %}{{ sgm_hosts }}{% elif 'WAR' in site %}{{ war_hosts }}{% elif 'MIL' in site %}{{ mil_hosts }}{% elif 'PDG' in site %}{{ pdg_hosts }}{% endif %}"
