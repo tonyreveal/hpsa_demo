@@ -1,1 +1,3 @@
 vars/aap_vars.yml
+add_hosts.yml
+vars/hosts.yml

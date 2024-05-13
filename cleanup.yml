@@ -1,98 +1,56 @@
 ---
-- name: Teardown workflows, job templates, inventories, and hostgroups
-  hosts: localhost
-  gather_facts: false
-  become: false
-  pre_tasks:
-    - name: Include vars to for getting token and loop over sites
-      ansible.builtin.include_vars:
-        dir: vars/
-        extensions:
-          - 'yml'
-          - 'yaml'
-          - 'json'
+- name: Remove Constructed Inventory Workflow
+  ansible.controller.workflow_job_template:
+    controller_host: "{{ aaphost }}"
+    controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+    name: 'HPSA Workflow for Constructed Inventories {{ unique_job_number }}'
+    organization: 'Texas Roadracing'
+    state: 'absent'
 
-    - name: Get AAP token
-      ansible.controller.token:
-        controller_host: "{{ aaphost }}"
-        controller_password: "{{ aappass }}"
-        controller_username: "{{ aapuser }}"
-        scope: 'write'
-        validate_certs: true
-      register: aaptoken
+- name: Remove Constructed Inventory Job Templates
+  ansible.controller.job_template:
+    controller_host: "{{ aaphost }}"
+    controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+    name: "HPSA Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+    organization: 'Texas Roadracing'
+    state: 'absent'
+  loop: "{{ locations }}"
+  loop_control:
+    loop_var: site
 
-  tasks:
-    - name: Remove Constructed Inventory Workflow
-      ansible.controller.workflow_job_template:
-        controller_host: "{{ aaphost }}"
-        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        name: 'HPSA Workflow for Constructed Inventories'
-        organization: 'Texas Roadracing'
-        state: 'absent'
+- name: Remove Constructed Inventories
+  ansible.controller.inventory:
+    controller_host: "{{ aaphost }}"
+    controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+    name: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
+    organization: 'Texas Roadracing'
+    state: 'absent'
+  loop: "{{ locations }}"
+  loop_control:
+    loop_var: site
 
-    - name: Remove Constructed Inventory Job Templates
-      ansible.controller.job_template:
-        controller_host: "{{ aaphost }}"
-        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        name: "HPSA Job Template for {{ site}} using Constructed Inventory"
-        organization: 'Texas Roadracing'
-        state: 'absent'
-      loop: "{{ locations }}"
-      loop_control:
-        loop_var: site
+# - name: Remove Hosts from Hostgroups (so the host isn't deleted when the hostrgroup is removed)
+#   ansible.controller.group:
+#     controller_host: "{{ aaphost }}"
+#     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+#     name: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
+#     description: "{{ site }} Hosts for HPSA Execution"
+#     inventory: 'Texas Roadracing Inventory All Hosts'
+#     hosts: []
+#     preserve_existing_hosts: false
+#     preserve_existing_children: false
+#   loop: "{{ locations }}"
+#   loop_control:
+#     loop_var: site
 
-    # - name: Remove Workflow for Hostgroups
-    #   ansible.controller.workflow_job_template:
-    #     controller_host: "{{ aaphost }}"
-    #     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    #     name: 'HPSA Workflow for Hostgroups'
-    #     organization: 'Texas Roadracing'
-    #     state: 'absent'
-
-    # - name: Remove Job Templates for Hostgroups
-    #   ansible.controller.job_template:
-    #     controller_host: "{{ aaphost }}"
-    #     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    #     name: 'HPSA Job Template for {{ site}} using Hostgroups'
-    #     organization: 'Texas Roadracing'
-    #     state: 'absent'
-    #   loop: "{{ locations }}"
-    #   loop_control:
-    #     loop_var: site
-
-    - name: Remove Constructed Inventories
-      ansible.controller.inventory:
-        controller_host: "{{ aaphost }}"
-        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        name: "HPSA {{ site }} Constructed Inventory"
-        organization: 'Texas Roadracing'
-        state: 'absent'
-      loop: "{{ locations }}"
-      loop_control:
-        loop_var: site
-
-    - name: Remove Hosts from Hostgroups (so the host isn't deleted when the hostrgroup is removed)
-      ansible.controller.group:
-        controller_host: "{{ aaphost }}"
-        controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        name: "hpsa_{{ site }}_hosts"
-        description: "{{ site }} Hosts for HPSA Execution"
-        inventory: 'Texas Roadracing Inventory All Hosts'
-        hosts: []
-        preserve_existing_hosts: false
-        preserve_existing_children: false
-      loop: "{{ locations }}"
-      loop_control:
-        loop_var: site
-
-    # - name: Remove Hostgroups
-    #   ansible.controller.group:
-    #     controller_host: "{{ aaphost }}"
-    #     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    #     inventory: 'Texas Roadracing Inventory All Hosts'
-    #     name: "hpsa_{{ site }}_hosts"
-    #     state: 'absent'
-    #   loop: "{{ locations }}"
-    #   loop_control:
-    #     loop_var: site
+- name: Remove Hostgroups
+  ansible.controller.group:
+    controller_host: "{{ aaphost }}"
+    controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
+    inventory: 'Texas Roadracing Inventory All Hosts'
+    name: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
+    state: 'absent'
+  loop: "{{ locations }}"
+  loop_control:
+    loop_var: site
 ...
