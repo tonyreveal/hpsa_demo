@@ -16,11 +16,11 @@
       loop_control:
         loop_var: site
 
-    - name: Update Constructed Inventory from Source
+    - name: Update Constructed Inventory to set a Limit
       ansible.controller.inventory_source:
         controller_host: "{{ aaphost }}"
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        inventory: "HPSA {{ site }} Constructed Inventory"
+        inventory: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         limit: "hpsa_{{ site }}_hosts"
         name: "Auto-created source for: HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
@@ -32,7 +32,7 @@
       ansible.controller.inventory_source_update:
         controller_host: "{{ aaphost }}"
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-        inventory: "HPSA {{ site }} Constructed Inventory"
+        inventory: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         name: "Auto-created source for: HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
       loop: "{{ locations }}"
