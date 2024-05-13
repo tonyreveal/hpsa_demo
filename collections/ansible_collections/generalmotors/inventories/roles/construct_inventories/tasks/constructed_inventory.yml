@@ -5,14 +5,14 @@
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
         description: "{{ site }} Hosts for HPSA Execution"
         input_inventories:
-          - 'GM Inventory All Hosts'
+          - 'Texas Roadracing Inventory All Hosts'
         instance_groups:
           - "{{ site }}_IG"
         kind: constructed
         name: "HPSA {{ site }} Constructed Inventory"
         organization: 'Texas Roadracing'
         prevent_instance_group_fallback: true
-      loop: "{{ gm_sites }}"
+      loop: "{{ locations }}"
       loop_control:
         loop_var: site
 
@@ -24,7 +24,7 @@
         limit: "hpsa_{{ site }}_hosts"
         name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
         organization: 'Texas Roadracing'
-      loop: "{{ gm_sites }}"
+      loop: "{{ locations }}"
       loop_control:
         loop_var: site
 
@@ -35,7 +35,7 @@
         inventory: "HPSA {{ site }} Constructed Inventory"
         name: "Auto-created source for: HPSA {{ site }} Constructed Inventory"
         organization: 'Texas Roadracing'
-      loop: "{{ gm_sites }}"
+      loop: "{{ locations }}"
       loop_control:
         loop_var: site
 ...

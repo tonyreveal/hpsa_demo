@@ -1,10 +1,10 @@
 ---
-- name: Construct inventoryies from CMDB queries
+- name: Construct inventoryies and job / workflow templates for HPSA
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   become: false
   pre_tasks:
-    - name: Include postgresql vars to query database
+    - name: Include vars to for getting token and loop over sites
       ansible.builtin.include_vars:
         dir: vars/
         extensions:
@@ -20,6 +20,15 @@
         scope: 'write'
         validate_certs: true
       register: aaptoken
+    
+    - name: Create random number to ensure all inventories and templates are unique to the job.
+      ansible.builtin.set_fact:
+        unique_job_number: "{{ ansible_date_time['year'] }}_\
+          {{ ansible_date_time['month'] }}_\
+          {{ ansible_date_time['day'] }}_\
+          {{ ansible_date_time['hour'] }}_\
+          {{ ansible_date_time['minute'] }}_\
+          {{ ansible_date_time['second'] }}"
 
   tasks:
     - name: Include role to generate inventories
@@ -28,26 +37,6 @@
 
     - name: Create job templates
       block:
-        - name: Create Job Templates to run against Hostgroups
-          ansible.controller.job_template:
-            controller_host: "{{ aaphost }}"
-            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-            allow_simultaneous: true
-            ask_variables_on_launch: true
-            credentials: 'RHEL User'
-            instance_groups:
-              - "{{ site }}_IG"
-            inventory: 'GM Inventory All Hosts'
-            limit: "hpsa_{{ site }}_hosts"
-            job_type: 'run'
-            name: 'HPSA Job Template for {{ site}} using Hostgroups'
-            organization: 'Texas Roadracing'
-            project: 'HPSA Demo'
-            playbook: 'run_cmd.yml'
-          loop: "{{ gm_sites }}"
-          loop_control:
-            loop_var: site
-
         - name: Create Job Templates to run against Constructed Inventories
           ansible.controller.job_template:
             controller_host: "{{ aaphost }}"
@@ -61,38 +50,12 @@
             organization: 'Texas Roadracing'
             project: 'HPSA Demo'
             playbook: 'run_cmd.yml'
-          loop: "{{ gm_sites }}"
+          loop: "{{ locations }}"
           loop_control:
             loop_var: site
 
     - name: Create workflow templates
       block:
-        - name: Create execution Workflow for Hostgroups
-          ansible.controller.workflow_job_template:
-            controller_host: "{{ aaphost }}"
-            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-            allow_simultaneous: true
-            ask_variables_on_launch: true
-            name: 'HPSA Workflow for Hostgroups'
-            organization: 'Texas Roadracing'
-            workflow_nodes:
-              - extra_data:
-                  run_cmd: 'ls -al /home'
-                identifier: "{{ site }}_001"
-                limit: "hpsa_{{ site }}_hosts"
-                related:
-                  always_nodes: []
-                  failure_nodes: []
-                  success_nodes: []
-                unified_job_template:
-                  name: 'HPSA Job Template for {{ site}} using Hostgroups'
-                  organization:
-                    name: 'Texas Roadracing'
-                  type: 'job_template'
-          loop: "{{ gm_sites }}"
-          loop_control:
-            loop_var: site
-
         - name: Create execution Workflow for Constructed Inventories
           ansible.controller.workflow_job_template:
             controller_host: "{{ aaphost }}"
@@ -115,21 +78,12 @@
                   organization:
                     name: 'Texas Roadracing'
                   type: 'job_template'
-          loop: "{{ gm_sites }}"
+          loop: "{{ locations }}"
           loop_control:
             loop_var: site
 
     - name: Launch workflows
       block:
-        - name: Launch job in AAP against Constrcuted Inventories with Hostgroups
-          ansible.controller.workflow_launch:
-            controller_host: "{{ aaphost }}"
-            controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-            extra_vars:
-              run_cmd: 'ls -al /home'
-            wait: false
-            workflow_template: 'HPSA Workflow for Hostgroups'
-
         - name: Launch job in AAP against Constructed Inventories using remote instance groups
           ansible.controller.workflow_launch:
             controller_host: "{{ aaphost }}"
@@ -138,4 +92,7 @@
               run_cmd: 'df -h'
             wait: false
             workflow_template: 'HPSA Workflow for Constructed Inventories'
+
+    # - name: Inlcude cleanup tasks
+    #   ansible.builtin.include_tasks: cleanup.yml
 ...

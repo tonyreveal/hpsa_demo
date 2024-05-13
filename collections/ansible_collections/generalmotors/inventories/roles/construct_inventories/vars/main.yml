@@ -4,10 +4,10 @@ dbport: 5432
 dbuser: 'cmdbuser'
 dbpassword: 'cmdbuser@123'
 dbname: 'cmdb'
-gm_sites:
+locations:
   - 'LMR'
-  - 'GMD'
-  - 'SGM'
+  - 'Texas RoadracingD'
+  - 'STexas Roadracing'
   - 'WAR'
   - 'MIL'
   - 'PDG'
