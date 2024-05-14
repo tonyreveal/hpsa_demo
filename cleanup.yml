@@ -33,7 +33,7 @@
 #   ansible.controller.group:
 #     controller_host: "{{ aaphost }}"
 #     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-#     name: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
+#     name: "{{ site }}_hosts_{{ unique_job_number }}"
 #     description: "{{ site }} Hosts for Execution"
 #     inventory: 'Texas Roadracing Inventory All Hosts'
 #     hosts: []
@@ -48,7 +48,7 @@
     controller_host: "{{ aaphost }}"
     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
     inventory: 'Texas Roadracing Inventory All Hosts'
-    name: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
+    name: "{{ site }}_hosts_{{ unique_job_number }}"
     state: 'absent'
   loop: "{{ locations }}"
   loop_control:

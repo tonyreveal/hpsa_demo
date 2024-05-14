@@ -21,7 +21,7 @@
         controller_host: "{{ aaphost }}"
         controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
         inventory: "{{ site }} Constructed Inventory {{ unique_job_number }}"
-        limit: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
+        limit: "{{ site }}_hosts_{{ unique_job_number }}"
         name: "Auto-created source for: {{ site }} Constructed Inventory {{ unique_job_number }}"
         organization: 'Texas Roadracing'
       loop: "{{ locations }}"

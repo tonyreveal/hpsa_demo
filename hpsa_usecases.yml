@@ -46,9 +46,9 @@
             credentials: 'RHEL User'
             inventory: "{{ site }} Constructed Inventory {{ unique_job_number }}"
             job_type: 'run'
-            name: "Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+            name: "{{ site}} Job Template {{ unique_job_number }}"
             organization: 'Texas Roadracing'
-            project: 'Demo'
+            project: 'Constructed Inventory and Instance Group Demo'
             playbook: 'run_cmd.yml'
           loop: "{{ locations }}"
           loop_control:
@@ -56,13 +56,13 @@
 
     - name: Create workflow templates
       block:
-        - name: Create execution Workflow for Constructed Inventories
+        - name: Create Workflow for Constructed Inventories
           ansible.controller.workflow_job_template:
             controller_host: "{{ aaphost }}"
             controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
             allow_simultaneous: true
             ask_variables_on_launch: true
-            name: 'Workflow for Constructed Inventories {{ unique_job_number }}'
+            name: "Multi-site Automation Workflow {{ unique_job_number }}"
             organization: 'Texas Roadracing'
             workflow_nodes:
               - extra_data:
@@ -74,7 +74,7 @@
                   failure_nodes: []
                   success_nodes: []
                 unified_job_template:
-                  name: "Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+                  name: "{{ site}} Job Template {{ unique_job_number }}"
                   organization:
                     name: 'Texas Roadracing'
                   type: 'job_template'
@@ -91,7 +91,7 @@
             extra_vars:
               run_cmd: 'df -h'
             wait: false
-            workflow_template: 'Workflow for Constructed Inventories {{ unique_job_number }}'
+            workflow_template: "Multi-site Automation Workflow {{ unique_job_number }}"
 
     # Can't delete while resource is in use.
     # Unique job ID makes this difficult to run as a separate playbook.
