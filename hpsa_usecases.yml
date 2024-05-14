@@ -44,11 +44,11 @@
             allow_simultaneous: true
             ask_variables_on_launch: true
             credentials: 'RHEL User'
-            inventory: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
+            inventory: "{{ site }} Constructed Inventory {{ unique_job_number }}"
             job_type: 'run'
-            name: "HPSA Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+            name: "Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
             organization: 'Texas Roadracing'
-            project: 'HPSA Demo'
+            project: 'Demo'
             playbook: 'run_cmd.yml'
           loop: "{{ locations }}"
           loop_control:
@@ -62,19 +62,19 @@
             controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
             allow_simultaneous: true
             ask_variables_on_launch: true
-            name: 'HPSA Workflow for Constructed Inventories {{ unique_job_number }}'
+            name: 'Workflow for Constructed Inventories {{ unique_job_number }}'
             organization: 'Texas Roadracing'
             workflow_nodes:
               - extra_data:
                   run_cmd: 'df -h'
                 identifier: "{{ site }}_001"
-                inventory: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
+                inventory: "{{ site }} Constructed Inventory {{ unique_job_number }}"
                 related:
                   always_nodes: []
                   failure_nodes: []
                   success_nodes: []
                 unified_job_template:
-                  name: "HPSA Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+                  name: "Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
                   organization:
                     name: 'Texas Roadracing'
                   type: 'job_template'
@@ -91,7 +91,7 @@
             extra_vars:
               run_cmd: 'df -h'
             wait: false
-            workflow_template: 'HPSA Workflow for Constructed Inventories {{ unique_job_number }}'
+            workflow_template: 'Workflow for Constructed Inventories {{ unique_job_number }}'
 
     # Can't delete while resource is in use.
     # Unique job ID makes this difficult to run as a separate playbook.

@@ -3,7 +3,7 @@
   ansible.controller.workflow_job_template:
     controller_host: "{{ aaphost }}"
     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    name: 'HPSA Workflow for Constructed Inventories {{ unique_job_number }}'
+    name: 'Workflow for Constructed Inventories {{ unique_job_number }}'
     organization: 'Texas Roadracing'
     state: 'absent'
 
@@ -11,7 +11,7 @@
   ansible.controller.job_template:
     controller_host: "{{ aaphost }}"
     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    name: "HPSA Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
+    name: "Job Template for {{ site}} using Constructed Inventory {{ unique_job_number }}"
     organization: 'Texas Roadracing'
     state: 'absent'
   loop: "{{ locations }}"
@@ -22,7 +22,7 @@
   ansible.controller.inventory:
     controller_host: "{{ aaphost }}"
     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
-    name: "HPSA {{ site }} Constructed Inventory {{ unique_job_number }}"
+    name: "{{ site }} Constructed Inventory {{ unique_job_number }}"
     organization: 'Texas Roadracing'
     state: 'absent'
   loop: "{{ locations }}"
@@ -34,7 +34,7 @@
 #     controller_host: "{{ aaphost }}"
 #     controller_oauthtoken: "{{ aaptoken['ansible_facts']['controller_token']['token'] }}"
 #     name: "hpsa_{{ site }}_hosts_{{ unique_job_number }}"
-#     description: "{{ site }} Hosts for HPSA Execution"
+#     description: "{{ site }} Hosts for Execution"
 #     inventory: 'Texas Roadracing Inventory All Hosts'
 #     hosts: []
 #     preserve_existing_hosts: false

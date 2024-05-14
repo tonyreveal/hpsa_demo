@@ -1,0 +1,14 @@
+---
+dbhost: 'trrel9wks.texasroadracing.com'
+dbport: 5432
+dbuser: 'cmdbuser'
+dbpassword: 'cmdbuser@123'
+dbname: 'cmdb'
+locations:
+  - 'LMR'
+  - 'Texas RoadracingD'
+  - 'STexas Roadracing'
+  - 'WAR'
+  - 'MIL'
+  - 'PDG'
+...
