@@ -2,4 +2,4 @@
 collections:
   - name: community.postgresql
   - name: ansible.controller
-  - name: generalmotors.inventories
+  - name: texasroadracing.inventories

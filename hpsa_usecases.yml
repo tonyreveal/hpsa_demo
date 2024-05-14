@@ -33,7 +33,7 @@
   tasks:
     - name: Include role to generate inventories
       ansible.builtin.include_role:
-        name: generalmotors.inventories.construct_inventories
+        name: texasroadracing.inventories.construct_inventories
 
     - name: Create job templates
       block:
