@@ -1,5 +1,5 @@
 ---
-- name: Construct inventoryies and job / workflow templates for HPSA
+- name: Construct inventories and job / workflow templates for HPSA
   hosts: localhost
   gather_facts: true
   become: false
@@ -92,11 +92,4 @@
               run_cmd: 'df -h'
             wait: false
             workflow_template: "Multi-site Automation Workflow {{ unique_job_number }}"
-
-    # Can't delete while resource is in use.
-    # Unique job ID makes this difficult to run as a separate playbook.
-    # Need to check the status of the workflow with a retry and delay.
-    # When workflow is finished, then run cleanup 
-    # - name: Inlcude cleanup tasks
-    #   ansible.builtin.include_tasks: cleanup.yml
 ...

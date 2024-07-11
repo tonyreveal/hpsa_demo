@@ -6,7 +6,7 @@
     login_user: "{{ dbuser }}"
     login_password: "{{ dbpassword }}"
     port: "{{ dbport }}"
-    query: SELECT * FROM cmdb.hosts WHERE host LIKE 'trraapc001%' OR host LIKE 'trraape001%' OR host LIKE 'trrautodev%'
+    query: SELECT * FROM cmdb.hosts WHERE host LIKE 'trraap%'
   register: sql_query_results
 
 - name: Create fact with just hostnames
@@ -17,9 +17,6 @@
     war_hosts: "{{ sql_query_results['query_result'] | selectattr('site','equalto','WAR') | map(attribute='host') | list }}"
     mil_hosts: "{{ sql_query_results['query_result'] | selectattr('site','equalto','MIL') | map(attribute='host') | list }}"
     pdg_hosts: "{{ sql_query_results['query_result'] | selectattr('site','equalto','PDG') | map(attribute='host') | list }}"
-
-- name: Include tasks to create Hostgroups in one Inventory
-  ansible.builtin.include_tasks: hostgroups.yml
 
 - name: Inlcude tasks to create Constructed Inventories
   ansible.builtin.include_tasks: constructed_inventory.yml
